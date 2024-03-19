@@ -1,68 +1,89 @@
 package br.com.fiap.bombview.controller;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.bombview.model.Filmes;
+import br.com.fiap.bombview.repository.FilmesRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@RestController
+@RequestMapping("filmes")
+@Slf4j
 public class FilmesController {
-    
-    /* LISTAR FILMES */
-    @RequestMapping(
-        method = RequestMethod.GET,
-        path = "/filmes",
-        produces = "application/json"
-    )
-    @ResponseBody
-    public Filmes index(){
-        return new Filmes(1L, "Em Ritmo de Fuga", "Ação", "1h 55m", 14);
+
+    // REPOSITÓRIO ------------------------------------------------------------------
+    @Autowired
+    FilmesRepository repository;
+
+    @GetMapping
+    public List<Filmes> index() {
+        return repository.findAll();
     }
 
-    /* CADASTRAR FILME */
-    @RequestMapping(
-        method = RequestMethod.POST,
-        path = "/filmes",
-        produces = "application/json",
-        consumes = "application/json"
-    )
-    @ResponseBody
-    public void create(){
-        System.out.println("Filme Cadastrado!");
+    // CADASTRAR FILMES ------------------------------------------------------------------
+    @PostMapping
+    @ResponseStatus(CREATED)
+    public Filmes create(@RequestBody Filmes filmes) {
+        log.info("Cadastrando filme {}", filmes);
+        return repository.save(filmes);
     }
 
-    /* DETALHES DO FILME */
-    @RequestMapping(
-        method = RequestMethod.GET,
-        path = "/filmes/{id}",
-        produces = "application/json"
-    )
-    @ResponseBody
-    public Filmes show(){
-        return new Filmes(1L, "Em Ritmo de Fuga", "Ação", "1h 55m", 14);
+    // BUSCAR FILMES ------------------------------------------------------------------
+    @GetMapping("{id}")
+    public ResponseEntity<Filmes> show(@PathVariable Long id) {
+        log.info("buscando filmes com id {}", id);
+
+        return repository
+                .findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+
     }
 
-    /* ATUALIZAR FILME */
-    @RequestMapping(
-        method = RequestMethod.PUT,
-        path = "/filmes/{id}",
-        produces = "application/json",
-        consumes = "application/json"
-    )
-    @ResponseBody
-    public void update(Long id){
-        System.out.println("Filme Atualizado!");
+    // DELETAR FILMES ------------------------------------------------------------------
+    @DeleteMapping("{id}")
+    @ResponseStatus(NO_CONTENT)
+    public void destroy(@PathVariable Long id) {
+        log.info("apagando filme {}", id);
+        verificarSeFilmeExiste(id);
+        repository.deleteById(id);
     }
-    
-    /* DELETAR FILME */
-    @RequestMapping(
-            method = RequestMethod.DELETE,
-            path = "/filmes/{id}",
-            produces = "application/json"
-    )
-    @ResponseBody
-    public void delete(Long id) {
-        System.out.println("Filme Deletado!");
+
+
+    // ATUALIZAR FILMES ------------------------------------------------------------------
+    @PutMapping("{id}")
+    public Filmes update(@PathVariable Long id, @RequestBody Filmes filmes) {
+        log.info("atualizar filmes {} para {}", id, filmes);
+
+        verificarSeFilmeExiste(id);
+        filmes.setId(id);
+        return repository.save(filmes);
+    }
+
+    // NOT FOUND!!! 
+    private void verificarSeFilmeExiste(Long id) {
+        repository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        NOT_FOUND,
+                        "Não existe filme com o id informado"));
     }
 
 
