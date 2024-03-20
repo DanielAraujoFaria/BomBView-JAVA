@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.bombview.model.Filmes;
 import br.com.fiap.bombview.repository.FilmesRepository;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -40,12 +41,12 @@ public class FilmesController {
     // CADASTRAR FILMES ------------------------------------------------------------------
     @PostMapping
     @ResponseStatus(CREATED)
-    public Filmes create(@RequestBody Filmes filmes) {
+    public Filmes create(@RequestBody @Valid Filmes filmes) {
         log.info("Cadastrando filme {}", filmes);
         return repository.save(filmes);
     }
 
-    // BUSCAR FILMES ------------------------------------------------------------------
+    // BUSCAR FILMES ------------------------   ------------------------------------------
     @GetMapping("{id}")
     public ResponseEntity<Filmes> show(@PathVariable Long id) {
         log.info("buscando filmes com id {}", id);
@@ -69,7 +70,7 @@ public class FilmesController {
 
     // ATUALIZAR FILMES ------------------------------------------------------------------
     @PutMapping("{id}")
-    public Filmes update(@PathVariable Long id, @RequestBody Filmes filmes) {
+    public Filmes update(@PathVariable Long id, @RequestBody @Valid Filmes filmes) {
         log.info("atualizar filmes {} para {}", id, filmes);
 
         verificarSeFilmeExiste(id);
