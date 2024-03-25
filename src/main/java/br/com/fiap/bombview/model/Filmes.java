@@ -16,7 +16,7 @@ public class Filmes {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "{movimentacao.nome.notblank}")
+    @NotBlank(message = "{filmes.nome.notblank}")
     @Size(min = 3, max = 255)
     private String nome;
 
