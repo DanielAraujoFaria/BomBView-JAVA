@@ -20,9 +20,13 @@ public class Filmes {
     @Size(min = 3, max = 255)
     private String nome;
 
+    private String genero;
+
     private String duracao;
 
     @Positive(message = "O VALOR PRECISA SER POSITIVO")
     private int classificacao;
+
+    private String descricao;
 }
     
