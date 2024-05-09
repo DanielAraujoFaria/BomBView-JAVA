@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.bombview.model.Review;
 import br.com.fiap.bombview.repository.ReviewRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,10 +34,18 @@ public class ReviewController {
     ReviewRepository repository;
 
     @GetMapping
+    @Operation(
+        summary = "Listar Reviews",
+        description = "Array de reviews cadastradas"
+    )
     public List<Review> index() {
         return repository.findAll();
     }
-
+    
+    @Operation(
+        summary = "Cadastrar review",
+        description = "Cadastrar uma nova review"
+    )
     @PostMapping
     @ResponseStatus(CREATED)
     public Review create(@RequestBody @Valid Review review) {
@@ -45,6 +54,10 @@ public class ReviewController {
     }
 
     @GetMapping("{id}")
+    @Operation(
+        summary = "Buscar Reviews",
+        description = "Buscar review por id"
+    )
     public ResponseEntity<Review> show(@PathVariable Long id) {
         log.info("buscando reviews com id {}", id);
 
@@ -57,6 +70,10 @@ public class ReviewController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(NO_CONTENT)
+    @Operation(
+        summary = "Deletar Reviews",
+        description = "Deletar reviews por id"
+    )
     public void destroy(@PathVariable Long id) {
         log.info("apagando review {}", id);
         verificarSeReviewExiste(id);
@@ -64,6 +81,10 @@ public class ReviewController {
     }
 
     @PutMapping("{id}")
+    @Operation(
+        summary = "Atualizar Reviews",
+        description = "Atualizar reviews por id"
+    )
     public Review update(@PathVariable Long id, @RequestBody @Valid Review review) {
         log.info("atualizar review {} para {}", id, review);
 
